@@ -1,31 +1,20 @@
-const request = require('request-promise-native');
+const api = require('./axios.config');
 const iconv = require('iconv-lite');
 const option = {
-    url: "https://polling.finance.naver.com/api/realtime",
+    url: "//polling.finance.naver.com/api/realtime",
     qs: {
         query: "SERVICE_ITEM:068270"
     },
     encoding: null
 }
 
-function getStock(stock_code) {
-    return new Promise((resolve, rej) => {
-        option.qs.query = `SERVICE_ITEM:${stock_code}`;
-        request(option, (err, res, body) => {
-            if(res == undefined || res == null) {
-                console.log(stock_code);
-                console.log(JSON.stringify(err));
-                console.log(JSON.stringify(res));
-                console.log(JSON.stringify(body));
-                return;
-            }
-
-            if(res != undefined && res.statusCode === 200){ 
-                const result = iconv.decode(body, 'EUC-KR');
-                resolve(result);
-            }
-        });
-    });
+async function getStock(stock_code) {
+    const response = await api.get("/api/realtime?query=SERVICE_ITEM:"+stock_code);
+    console.log(response);
+    if(response.statusCode == 200){
+        const body = iconv.decode(response.body);
+        return body;
+    }
 }
 
 function getKOS(kos_code) {
